@@ -8,6 +8,10 @@ const masterVocID = config.MVID;
 const testID = config.testID;
 
 client.on("ready", () => {
+
+  // GUILDS
+  cherianaGuild = client.guilds.find(guild => guild.id == "524277446946717707"); // Server: 2019 | Cheriana | FR
+  portailGuild = client.guilds.find(guild => guild.id == "525363756704858115"); // Server: 2019 | Cheriana | FR
   // CHANNELS
   cheriana = client.channels.find(chan => chan.name == "cheriana")
   cherianaVC = client.channels.find(chan => {((chan.name == "Cheriana") && (chan.type == "voice"))})
@@ -20,23 +24,44 @@ client.on("ready", () => {
   // CATEGORY CHANNELS
   cheribackup = client.channels.get("527920710631555073"); // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
   newUsersChannels = client.channels.get("528051676343435304"); // Server: 2019 | Portail Cheriana | FR Channel: #NEW USERS CHANNELS [category channel]
+  oldChannels = client.channels.get("528400619602706443"); // Server: 2019 | Portail Cheriana | FR Channel: #OLD CHANNELS [category channel]
   // ROLES
   ownnerUser = client.users.get('524266873412648980'); // Le Createur
-  anarchobotRole = cheriana.guild.roles.find(role => role.id  == "524322827797528591")
-  chouchouneRole = cheriana.guild.roles.find(role => role.id  == "525375457873494026")
-  cheriOwnerRole = cheriana.guild.roles.find(role => role.id == "524282758160449556")
-  newAuthBotRole = cheriana.guild.roles.find(role => role.id == "524341728489111568")
-  cheriBotTeam = cheriana.guild.roles.find(role => role.id == "524342298117668864")
-  quarantineRole = cheriana.guild.roles.find(role => role.id == "524579534725447687")
-  cheriUserCatRole = cheriana.guild.roles.find(role => role.id == "524343443405930507")
-  cheriUserRole = cheriana.guild.roles.find(role => role.id == "524279902007066632")
+  anarchobotRole = cherianaGuild.roles.find(role => role.id  == "524322827797528591")
+  afkBotRole = cherianaGuild.roles.find(role => role.id  == "533468222603788310")
+  chouchouneRole = cherianaGuild.roles.find(role => role.id  == "525375457873494026")
+  cheriOwnerRole = cherianaGuild.roles.find(role => role.id == "524282758160449556")
+  newAuthBotRole = cherianaGuild.roles.find(role => role.id == "524341728489111568")
+  cheriBotTeam = cherianaGuild.roles.find(role => role.id == "524342298117668864")
+  quarantineRole = cherianaGuild.roles.find(role => role.id == "524579534725447687")
+  cheriUserCatRole = cherianaGuild.roles.find(role => role.id == "524343443405930507")
+  cheriUserRole = cherianaGuild.roles.find(role => role.id == "524279902007066632")
+  // COLOR ROLES
+  color0 = cherianaGuild.roles.get("535022049291141120") // Blanc
+  color10 = cherianaGuild.roles.get("535022041406111744") // Bleu
+  color20 = cherianaGuild.roles.get("535024564703461377") // Bleu Ciel
+  color30 = cherianaGuild.roles.get("535024789031747584") // Bleu Roi
+  color40 = cherianaGuild.roles.get("535022046372167686") // Violet
+  color50 = cherianaGuild.roles.get("535023658918215681") // Cyan
+  color60 = cherianaGuild.roles.get("535021815228006400") // Jaune
+  color70 = cherianaGuild.roles.get("535022015183060992") // Orange
+  color80 = cherianaGuild.roles.get("535022045520461824") // Rouge
+  color90 = cherianaGuild.roles.get("526204018003935241") // Vert
+  color100 = cherianaGuild.roles.get("535022044555902980") // Rose
+  color110 = cherianaGuild.roles.get("535022047521275904") // Marron
+  color120 = cherianaGuild.roles.get("535021997231439902") // Gris
+  color130 = cherianaGuild.roles.get("535022048544817163") // Noir
   // OTHERS
   newuserChanName = null;
 
+  coloredRolesList = []
+  coloredRolesList.push(color0, color10, color20, color30, color40, color50, color60, color70, color80, color90, color100, color110, color120, color130)
   protectedRolesList = []
   protectedRolesList.push(anarchobotRole, chouchouneRole, cheriOwnerRole, newAuthBotRole, cheriBotTeam, quarantineRole, cheriUserCatRole, cheriUserRole)
 
-  membersCount = client.users.size;
+
+
+  membersCount = cherianaGuild.members.size;
   var serverCount = client.guilds.size;
   const guildNames = client.guilds.map(g => (g.name + "\n"))
   var startMsg = `\n ${client.user.username}@client [Started] ${new Date()}
@@ -49,9 +74,22 @@ client.on("ready", () => {
   console.log(startMsg + '\n Detected Channels :\n');
 
   client.channels.forEach(chan => {
-    if (chan.guild.id == "524277446946717707") console.log(' ' + chan.guild.name + '             #' + chan.name)
-    if (chan.guild.id == "525363756704858115") console.log(' ' + chan.guild.name + '     #' + chan.name)
+    if ((chan.guild.id == "524277446946717707") && (chan.type == "text")) console.log(' ' + chan.guild.name + '             [  Textual ]     # ' + chan.name)
   })
+
+  client.channels.forEach(chan => {
+    if ((chan.guild.id == "524277446946717707") && (chan.type == "voice")) console.log(' ' + chan.guild.name + '             [    Vocal ]     🔈 ' + chan.name)
+  })
+
+  client.channels.forEach(chan => {
+    if ((chan.guild.id == "525363756704858115") && (chan.type == "category")) console.log(' ' + chan.guild.name + '     [ Category ]     | ' + chan.name)
+  })
+
+  client.channels.forEach(chan => {
+    if ((chan.guild.id == "525363756704858115") && (chan.type == "text")) console.log(' ' + chan.guild.name + '     [  Textual ]     # ' + chan.name)
+  })
+  console.log(' ');
+
 /*
   setInterval(function() {console.log("cheriana lastMessageID: " + cheriana.lastMessageID)}, 3 * 1000)
   setInterval(function() {console.log("Bot.user lastMessageID: " + client.user.lastMessageID)}, 3 * 1000)
@@ -61,19 +99,25 @@ client.on("ready", () => {
 
 });
 
+
+client.on("error", err => {
+  console.log(err)
+});
+
+
 client.on("message", message => {
 
   if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
   if ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115")) return;
 
-  var anarchobotRole = cheriana.guild.roles.find(role => role.id  == "524273043124649989")
-  var chouchouneRole = cheriana.guild.roles.find(role => role.id  == "525375457873494026")
-  var cheriOwnerRole = cheriana.guild.roles.find(role => role.id == "524282758160449556")
-  var newAuthBotRole = cheriana.guild.roles.find(role => role.id == "524341728489111568")
-  var cheriBotTeam = cheriana.guild.roles.find(role => role.id == "524342298117668864")
-  var quarantineRole = cheriana.guild.roles.find(role => role.id == "524579534725447687")
-  var cheriUserCatRole = cheriana.guild.roles.find(role => role.id == "524343443405930507")
-  var cheriUserRole = cheriana.guild.roles.find(role => role.id == "524279902007066632")
+  var anarchobotRole = cherianaGuild.roles.find(role => role.id  == "524273043124649989")
+  var chouchouneRole = cherianaGuild.roles.find(role => role.id  == "525375457873494026")
+  var cheriOwnerRole = cherianaGuild.roles.find(role => role.id == "524282758160449556")
+  var newAuthBotRole = cherianaGuild.roles.find(role => role.id == "524341728489111568")
+  var cheriBotTeam = cherianaGuild.roles.find(role => role.id == "524342298117668864")
+  var quarantineRole = cherianaGuild.roles.find(role => role.id == "524579534725447687")
+  var cheriUserCatRole = cherianaGuild.roles.find(role => role.id == "524343443405930507")
+  var cheriUserRole = cherianaGuild.roles.find(role => role.id == "524279902007066632")
 
   var botID = client.users.get(`${client.user.id}`);
   var except_chanA = client.channels.find(chan => chan.name === 'cheriana');
@@ -167,7 +211,7 @@ if (message.attachments) {
 client.on("guildMemberAdd", (member) => {
 
   setTimeout(function() {
-    var membersCount = client.users.size;
+    var membersCount = cherianaGuild.members.size;
     client.user.setActivity(`${membersCount} utilisateurs`, {type: "WATCHING"});
   }, 3 * 1000)
 
@@ -195,7 +239,6 @@ que l'intégralité du serveur peut être réduite à néant à tout instant et 
 par les simples mauvaises intentions du plus petit nombre.\n
 :warning: **Ce salon s'autodétruira de lui-même si vous ne le faites avant échéance du délai de: `;
   var addText = `est entré sur **2019 | Cheriana | FR**`;
-  var membersCount = client.users.size;
 
   // Case some user try to delete a chierana protected textual/vocal by his nickname egal to chan name
   if (member.user.username == "cheriana") return member.kick();
@@ -311,7 +354,7 @@ Ce salon est à votre disposition pour vous permettre de discuter avec l'ensembl
 client.on("guildMemberRemove", (member) => {
 
   setTimeout(function() {
-    var membersCount = client.users.size;
+    var membersCount = cherianaGuild.members.size;
     client.user.setActivity(`${membersCount} utilisateurs`, {type: "WATCHING"});
   }, 3 * 1000)
 
@@ -364,7 +407,7 @@ client.on('channelCreate', (channel) => {
           console.log(" newUserChanName = " + newuserChanName)
 
         } else {
-          createdChannel.setParent("527920710631555073") // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
+          createdChannel.setParent(cheribackup.id) // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
 
         }
 
@@ -386,6 +429,7 @@ client.on('channelDelete', (channel, user) => {
 
   if ((channel.name == "cheriana") || (channel.name == "Cheriana")) {
 
+  // SECURED CHANNELS
   if (channel.type == "text") {
   	channel.guild.createChannel(`cheriana-resurrection`, "text")
   	.then(createChan => {
@@ -393,9 +437,9 @@ client.on('channelDelete', (channel, user) => {
         if (createChan != undefined) {
           createChan.setName("cheriana").then(setName => createChan.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
             createChan.send(invite.url)
-            cherianaPassInvite.send(invite.url)
+            cherianaPassInvite.send("**Entrée vers Cheriana:**\n" + invite.url)
             var toDelMsg = cherianaLogs.lastMessageID;
-            cherianaLogs.fetchMessage(toDelMsg).then(msg => msg.delete());
+            cherianaLogs.fetchMessage(toDelMsg).then(msg => msg.delete() && console.log(msg + " [Has Been Deleted]"));
             console.log(invite.url)
           }))
         }
@@ -434,6 +478,7 @@ client.on('channelDelete', (channel, user) => {
     })
     console.log(' Some user try to delete the 🔇 Silence Room [Protected Vocal Channel]')
 
+  // NOT SECURED CHANNELS
   } else {
 
     var thisChannel = cheribackup.guild.channels.find(chan => chan.name === channel.name);
@@ -441,7 +486,7 @@ client.on('channelDelete', (channel, user) => {
     if (!thisChannel) {
       return console.log("thisChannel is undefined - err 123")
     } else {
-      thisChannel.send("**END OF THIS CHANNEL - [HAS BEEN DELETED]**")
+      thisChannel.send("**END OF THIS CHANNEL - [HAS BEEN DELETED]**").then(send => thisChannel.setParent(oldChannels.id))
     }
 
   cherianaLogs.send("Le salon **#" + channel.name + "** vient d'être supprimé")
