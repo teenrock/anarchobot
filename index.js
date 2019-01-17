@@ -107,7 +107,7 @@ client.on("error", err => {
 
 client.on("message", message => {
 
-  if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
+  if (!message.guild) console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
   if ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115")) return;
 
   var anarchobotRole = cherianaGuild.roles.find(role => role.id  == "524273043124649989")
@@ -132,7 +132,6 @@ client.on("message", message => {
   newArgs = message.content
 
   if (message.content.startsWith(prefix) && (message.channel != undefined)) {
-    cherianactivity.send(`**${message.author.username}** sur ${message.channel} : \`${message.content}\``)
     message.delete(1000)
     console.log("\n " + message.author.username + " a tapé la commande: " + message.content)
   }
@@ -182,8 +181,13 @@ if (message.attachments) {
       console.log(MSGChanLog)
     }
 
-    cherianactivity.send(MSGChan)
-    console.log(MSGChanLog)
+    if ((!message.attachment) && (message.content.type != "text")) {
+      return console.log("MESSAGE IS NOT A TEXT MESSAGE")
+    } else {
+      cherianactivity.send(MSGChan)
+      console.log(MSGChanLog)
+    }
+    
 
     if (!thisChannel) {
       return
@@ -394,7 +398,7 @@ client.on('channelCreate', (channel) => {
   if ((channel.name == "🔇 Silence Room") && (channel.type == "voice")) return channel.setName("Will Be Destroyed").then(editChan => setTimeout(function() {editChan.delete()}, 3 * 1000))
   if (channel.type == "category") return channel.setName("WILL BE DESTROYED").then(editChan => setTimeout(function() {editChan.delete()}, 3 * 1000))
 
-  if ((channel.name != "cheriana-resurrection") || (channel.name != "silence-room-resurrection")) {
+  if ((channel.name != "cheriana-resurrection") && (channel.name != "silence-room-resurrection")) {
 
     if (channel.type == "text") cheribackup.guild.createChannel(channel.name, "text").then(createdChannel =>  {
 
@@ -432,12 +436,12 @@ client.on('channelDelete', (channel, user) => {
   // SECURED CHANNELS
   if (channel.type == "text") {
   	channel.guild.createChannel(`cheriana-resurrection`, "text")
-  	.then(createChan => {
+  	.then(createdChan => {
   	  setTimeout(function() {
-        if (createChan != undefined) {
-          createChan.setName("cheriana").then(setName => createChan.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
-            createChan.send(invite.url)
-            cherianaPassInvite.send("**Entrée vers Cheriana:**\n" + invite.url)
+        if (createdChan != undefined) {
+          createdChan.setName("cheriana").then(setName => createdChan.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
+            createdChan.send(invite.url)
+            cherianaPassInvite.send("**Entrée vers Cheriana:** " + invite.url)
             var toDelMsg = cherianaLogs.lastMessageID;
             cherianaLogs.fetchMessage(toDelMsg).then(msg => msg.delete() && console.log(msg + " [Has Been Deleted]"));
             console.log(invite.url)
@@ -449,9 +453,9 @@ client.on('channelDelete', (channel, user) => {
 
   } else if (channel.type == "voice") {
   	channel.guild.createChannel(`Cheriana Résurrection`, "voice")
-    .then(createChan => {
+    .then(createdChan => {
       setTimeout(function() {
-        if (createChan != undefined) createChan.setName("Cheriana")
+        if (createdChan != undefined) createdChan.setName("Cheriana")
        }, 3 * 1000 )
     })
   	console.log(' Some user try to delete the Master Vocal Channel')
@@ -460,10 +464,10 @@ client.on('channelDelete', (channel, user) => {
 } else if ((channel.name == "silence-room") && (channel.type == "text")) {
 
   channel.guild.createChannel(`silence-room-resurrection`, "text")
-    .then(createChan => {
+    .then(createdChan => {
       setTimeout(function() {
-        if (createChan != undefined) {
-          createChan.setName("silence-room")
+        if (createdChan != undefined) {
+          createdChan.setName("silence-room")
         }
        }, 3 * 1000 );
        console.log(' Some user try to delete #silence-room')
@@ -471,9 +475,9 @@ client.on('channelDelete', (channel, user) => {
 
 } else if (channel.name == "🔇 Silence Room") {
   channel.guild.createChannel("Silence Room Résurrection", "voice")
-  .then(createChan => {
+  .then(createdChan => {
       setTimeout(function() {
-        if (createChan != undefined) createChan.setName("🔇 Silence Room")
+        if (createdChan != undefined) createdChan.setName("🔇 Silence Room")
        }, 3 * 1000 )
     })
     console.log(' Some user try to delete the 🔇 Silence Room [Protected Vocal Channel]')
