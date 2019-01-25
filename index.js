@@ -58,12 +58,11 @@ client.on("ready", () => {
   coloredRolesList.push(color0, color10, color20, color30, color40, color50, color60, color70, color80, color90, color100, color110, color120, color130)
   protectedRolesList = []
   protectedRolesList.push(anarchobotRole, chouchouneRole, cheriOwnerRole, newAuthBotRole, cheriBotTeam, quarantineRole, cheriUserCatRole, cheriUserRole)
-
-
+  xzdcUsersList = []
 
   membersCount = cherianaGuild.members.size;
   var serverCount = client.guilds.size;
-  const guildNames = client.guilds.map(g => (g.name + "\n"))
+  const guildNames = client.guilds.map(g => (g.name + "\n"));
   var startMsg = `\n ${client.user.username}@client [Started] ${new Date()}
  --------------------------------------\n Utilisateurs: ${membersCount}\n Serveur(s): ${serverCount}\n ${guildNames}\n --------------------------------------\n`;
 
@@ -107,7 +106,56 @@ client.on("error", err => {
 
 client.on("message", message => {
 
-  if (!message.guild) console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
+  if (message.content.startsWith(prefix + "purge") && ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115"))) {
+    if (message.author.bot) return
+    if (message.channel.type === "dm") return
+    
+    if(!message.guild.member(message.author).hasPermission("MANAGE_GUILD")) return message.reply("**:x: Vous n'avez pas la permission `manage-guild` dans ce serveur**").catch(console.error)
+
+    const user = message.mentions.users.first()
+    const amount = !!parseInt(message.content.split(' ')[1]) ? parseInt(message.content.split(' ')[1]) : parseInt(message.content.split(' ')[2]) 
+    
+    if (!amount) return message.reply('**:x: Veuillez spécifier une limite de message**')
+    
+    if (!amount && !user) 
+    
+    return message.reply('**:x: Veuillez spécifier une limite de message**')
+    
+    if (!user){
+      if(isNaN(message.content.split(' ')[1]) || parseInt(message.content.split(' ')[1]) < 2 || parseInt(message.content.split(' ')[1]) > 100){
+        message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
+      }
+    }
+
+    if(message.content.split(' ')[2]){
+      if(isNaN(message.content.split(' ')[2]) || parseInt(message.content.split(' ')[2]) < 2 || parseInt(message.content.split(' ')[2]) > 100){
+        message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
+      }
+    }
+
+    message.channel.fetchMessages({ limit: amount, }).then((messages) => {
+      if (user) {
+        const filterBy = user ? user.id : Client.user.id;
+        messages = messages.filter(m => m.author.id === filterBy).array().slice(0, amount)
+      }
+
+      message.channel.bulkDelete(messages).catch(error => console.log(error.stack))
+      message.channel.send(":wastebasket: | `" + amount + "` messages supprimés")
+   })
+}
+
+  if (message.channel == silentRoom) {
+
+      if (!vChan) {
+        return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
+      } else if (vChan.name != "🔇 Silence Room") return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
+
+    } else if ((message.channel == silentRoom) && (vChan.name == "🔇 Silence Room")) {
+      silentRoom.send(MSGChan)
+      console.log(MSGChanLog)
+    }
+
+  if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
   if ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115")) return;
 
   var anarchobotRole = cherianaGuild.roles.find(role => role.id  == "524273043124649989")
@@ -131,10 +179,15 @@ client.on("message", message => {
   var vChan = message.member.voiceChannel;
   newArgs = message.content
 
+  // SilentRoom Cmds Restrictions & auto delete cmds + log
   if (message.content.startsWith(prefix) && (message.channel != undefined)) {
+    if (message.channel == silentRoom) return message.delete() && message.author.send(`Le salon ${silentRoom} n'est pas destiné à l'utilisation de commandes quelle qu'elles soient.`)
     message.delete(1000)
     console.log("\n " + message.author.username + " a tapé la commande: " + message.content)
   }
+
+  // Auto Chan SetPosition on Message
+  if ((message.channel.postition != 1) && (message.channel != silentRoom) && (message.channel != cheriana)) message.channel.setPosition(1)
 
   if (message.author.id == "524266873412648980") { // Owner User: Le Createur
     const ownerCmds = require("./cmds/ownerCmds.js")
@@ -170,25 +223,13 @@ if (message.attachments) {
     var MSGChan = `**${message.author.username}** sur **#${msgchan.name}** : ${newArgs}`;
     var MSGChanLog = ` ${new Date()} sur #${msgchan.name}\n ${message.author.username} : ${newArgs}\n UserID : ${message.author.id}\n ChannelID : ${msgchan.id}\n`;
 
-    if (message.channel == silentRoom) {
-
-      if (!vChan) {
-        return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
-      } else if (vChan.name != "🔇 Silence Room") return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
-
-    } else if ((message.channel == silentRoom) && (vChan.name == "🔇 Silence Room")) {
-      silentRoom.send(MSGChan)
-      console.log(MSGChanLog)
-    }
-
-    if ((!message.attachment) && (message.content.type != "text")) {
-      return console.log("MESSAGE IS NOT A TEXT MESSAGE")
+    if ((!message.attachment) && (!message.content.type == "text")) { // A
+      console.log("MESSAGE IS NOT A TEXT MESSAGE")
     } else {
       cherianactivity.send(MSGChan)
       console.log(MSGChanLog)
     }
     
-
     if (!thisChannel) {
       return
     } else {
@@ -507,7 +548,7 @@ client.on('channelDelete', (channel, user) => {
 
 client.on('channelUpdate', (oChannel, nChannel) => {
 
-  if ((oChannel.guild == undefined) || (oChannel.guild == undefined))return
+  if ((oChannel.guild == undefined) || (oChannel.guild == undefined)) return
 
   // Created Channels Backup on 2019 | Portail Cheriana | FR
   if ((nChannel.guild.name == "2019 | Portail Cheriana | FR") || (oChannel.guild.name == "2019 | Portail Cheriana | FR")) return;
@@ -582,13 +623,13 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   if (!newMember.user.bot) {
 
     if (newUserChannel.name == silentRoomVC.name) {
-      if (newMember.serverMute == false) newMember.setMute(true) && console.log(" Someone has tryed to Mute " + newMember.user.username)
-      if (newMember.serverDeaf == false) newMember.setDeaf(true) && console.log(" Someone has tryed to Deaf " + newMember.user.username)
+      if (newMember.serverMute == false) newMember.setMute(true) // && console.log(" Someone has tryed to Mute " + newMember.user.username)
+      if (newMember.serverDeaf == false) newMember.setDeaf(true) // && console.log(" Someone has tryed to Deaf " + newMember.user.username)
     } else if (newUserChannel.name == afkVC.name) {
-      if (newMember.serverMute == false) newMember.setMute(true) && console.log(" Someone has tryed to Mute " + newMember.user.username)
+      if (newMember.serverMute == false) newMember.setMute(true) // && console.log(" Someone has tryed to Mute " + newMember.user.username)
     } else {
-      if (newMember.serverMute == true) newMember.setMute(false) && console.log(" Someone has tryed to Mute " + newMember.user.username)
-      if (newMember.serverDeaf == true) newMember.setDeaf(false) && console.log(" Someone has tryed to Deaf " + newMember.user.username)
+      if (newMember.serverMute == true) newMember.setMute(false) // && console.log(" Someone has tryed to Mute " + newMember.user.username)
+      if (newMember.serverDeaf == true) newMember.setDeaf(false) // && console.log(" Someone has tryed to Deaf " + newMember.user.username)
     }
 
   // New Bot User
