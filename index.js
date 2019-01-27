@@ -7,6 +7,8 @@ const masterChanID = config.MCID;
 const masterVocID = config.MVID;
 const testID = config.testID;
 
+let serverIsRegenerating = undefined
+
 client.on("ready", () => {
 
   // GUILDS
@@ -14,10 +16,10 @@ client.on("ready", () => {
   portailGuild = client.guilds.find(guild => guild.id == "525363756704858115"); // Server: 2019 | Cheriana | FR
   // CHANNELS
   cheriana = client.channels.find(chan => chan.name == "cheriana")
-  cherianaVC = client.channels.find(chan => {((chan.name == "Cheriana") && (chan.type == "voice"))})
   silentRoom = client.channels.find(chan => chan.name == "silence-room")
-  silentRoomVC = client.channels.find(chan => {((chan.name == "🔇 Silence Room") && (chan.type == "voice"))})
-  afkVC = client.channels.find(chan => {((chan.name == "🚽 - Les Chiottes") && (chan.type == "voice"))})
+  cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+  silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+  afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
   cherianaPassInvite = client.channels.get("525363757359038482") // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-invitation
   cherianaLogs = client.channels.get("525714829571260459") // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-logs
   cherianactivity = client.channels.get("527823396864786433"); // Server: 2019 | Portail Cheriana | FR Channel: #cherianactivity
@@ -54,8 +56,8 @@ client.on("ready", () => {
   // OTHERS
   newuserChanName = null;
 
-  coloredRolesList = []
-  coloredRolesList.push(color0, color10, color20, color30, color40, color50, color60, color70, color80, color90, color100, color110, color120, color130)
+  colorList = []
+  colorList.push(color0, color10, color20, color30, color40, color50, color60, color70, color80, color90, color100, color110, color120, color130)
   protectedRolesList = []
   protectedRolesList.push(anarchobotRole, chouchouneRole, cheriOwnerRole, newAuthBotRole, cheriBotTeam, quarantineRole, cheriUserCatRole, cheriUserRole)
   xzdcUsersList = []
@@ -96,53 +98,105 @@ client.on("ready", () => {
 
 // console.log(newUsersChannels)
 
-});
+// SERVER CHANNELS AUTO RESTORE IF NOT EXISTS
+if (cheriana == undefined) {
+  serverIsRegenerating = true
+  cherianaGuild.createChannel("cheriana").then(createdChannel => {
+    cheriana = client.channels.find(chan => chan.name == createdChannel.name)
+  })
+}
 
+if (silentRoom == undefined) {
+  serverIsRegenerating = true
+  cherianaGuild.createChannel("silence-room").then(createdChannel => {
+    silentRoom = client.channels.find(chan => chan.name == createdChannel.name)
+  })
+}
+
+  if (!cherianaVC) {
+  serverIsRegenerating = true
+  cherianaGuild.createChannel(`Cheriana`, "voice").then(createdChannel => {
+    cherianaVC = client.channels.find(chan => chan.name == createdChannel.name)
+  })
+}
+
+if (!silentRoomVC) {
+  serverIsRegenerating = true
+  cherianaGuild.createChannel("🔇 Silence Room", "voice").then(createdChannel => {
+    silentRoomVC = client.channels.find(chan => chan.name == createdChannel.name)
+  })
+}
+
+if (!afkVC) {
+  serverIsRegenerating = true
+  cherianaGuild.createChannel("🚽 - Les Chiottes", "voice").then(createdChannel => {
+    afkVC = client.channels.find(chan => chan.name == createdChannel.name)
+  })
+}
+
+if (cherianaGuild.name != "2019 | Cheriana | FR") cherianaGuild.setName("2019 | Cheriana | FR");
+
+cherianaGuild.setIcon("./resources/server_icon.png")
+
+serverIsRegenerating = false
+
+  setInterval(function() {
+    console.log(cherianaGuild.name + " [IsRegenerating Status] = " + serverIsRegenerating)
+  }, 1 * 2000)
+
+});
 
 client.on("error", err => {
   console.log(err)
 });
 
+  client.on("message", message => {
 
-client.on("message", message => {
+    var cheriana = client.channels.find(chan => chan.name == "cheriana")
+    var silentRoom = client.channels.find(chan => chan.name == "silence-room")
+    var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+    var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+    var afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
 
-  if (message.content.startsWith(prefix + "purge") && ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115"))) {
-    if (message.author.bot) return
-    if (message.channel.type === "dm") return
-    
-    if(!message.guild.member(message.author).hasPermission("MANAGE_GUILD")) return message.reply("**:x: Vous n'avez pas la permission `manage-guild` dans ce serveur**").catch(console.error)
+    if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
 
-    const user = message.mentions.users.first()
-    const amount = !!parseInt(message.content.split(' ')[1]) ? parseInt(message.content.split(' ')[1]) : parseInt(message.content.split(' ')[2]) 
+    if (message.content.startsWith(prefix + "purge") && ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115"))) {
+      if (message.author.bot) return
+      if (message.channel.type === "dm") return
     
-    if (!amount) return message.reply('**:x: Veuillez spécifier une limite de message**')
+      if(!message.guild.member(message.author).hasPermission("MANAGE_GUILD")) return message.reply("**:x: Vous n'avez pas la permission `manage-guild` dans ce serveur**").catch(console.error)
+
+      const user = message.mentions.users.first()
+      const amount = !!parseInt(message.content.split(' ')[1]) ? parseInt(message.content.split(' ')[1]) : parseInt(message.content.split(' ')[2]) 
     
-    if (!amount && !user) 
+      if (!amount) return message.reply('**:x: Veuillez spécifier une limite de message**')
     
-    return message.reply('**:x: Veuillez spécifier une limite de message**')
+      if (!amount && !user) 
     
-    if (!user){
-      if(isNaN(message.content.split(' ')[1]) || parseInt(message.content.split(' ')[1]) < 2 || parseInt(message.content.split(' ')[1]) > 100){
-        message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
+      return message.reply('**:x: Veuillez spécifier une limite de message**')
+    
+      if (!user){
+        if(isNaN(message.content.split(' ')[1]) || parseInt(message.content.split(' ')[1]) < 2 || parseInt(message.content.split(' ')[1]) > 100){
+          message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
+        }
       }
+
+      if(message.content.split(' ')[2]){
+        if(isNaN(message.content.split(' ')[2]) || parseInt(message.content.split(' ')[2]) < 2 || parseInt(message.content.split(' ')[2]) > 100){
+          message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
+        }
+      }
+
+      message.channel.fetchMessages({ limit: amount, }).then((messages) => {
+        if (user) {
+          const filterBy = user ? user.id : Client.user.id;
+          messages = messages.filter(m => m.author.id === filterBy).array().slice(0, amount)
+        }
+
+        message.channel.bulkDelete(messages).catch(error => console.log(error.stack))
+        message.channel.send(":wastebasket: | `" + amount + "` messages supprimés")
+      })
     }
-
-    if(message.content.split(' ')[2]){
-      if(isNaN(message.content.split(' ')[2]) || parseInt(message.content.split(' ')[2]) < 2 || parseInt(message.content.split(' ')[2]) > 100){
-        message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
-      }
-    }
-
-    message.channel.fetchMessages({ limit: amount, }).then((messages) => {
-      if (user) {
-        const filterBy = user ? user.id : Client.user.id;
-        messages = messages.filter(m => m.author.id === filterBy).array().slice(0, amount)
-      }
-
-      message.channel.bulkDelete(messages).catch(error => console.log(error.stack))
-      message.channel.send(":wastebasket: | `" + amount + "` messages supprimés")
-   })
-}
 
   if (message.channel == silentRoom) {
 
@@ -187,7 +241,7 @@ client.on("message", message => {
   }
 
   // Auto Chan SetPosition on Message
-  if ((message.channel.postition != 1) && (message.channel != silentRoom) && (message.channel != cheriana)) message.channel.setPosition(1)
+  if ((message.channel.postition != 1) && ((message.channel.name != "silence-room") && (message.channel.name != "cheriana"))) message.channel.setPosition(1)
 
   if (message.author.id == "524266873412648980") { // Owner User: Le Createur
     const ownerCmds = require("./cmds/ownerCmds.js")
@@ -195,7 +249,7 @@ client.on("message", message => {
   }
 
   const usersCmds = require("./cmds/usersCmds.js")
-  usersCmds(message, prefix, client, command)
+  usersCmds(message, prefix, client, command, colorList)
 
 if (message.attachments) {
 
@@ -299,10 +353,10 @@ par les simples mauvaises intentions du plus petit nombre.\n
 module.exports = birth_${member.id}`;
 
     // KNOWN USER ID
-  	if (fs.existsSync(birthFile) || fs.existsSync(quarantineFile)) {
+    if (fs.existsSync(birthFile) || fs.existsSync(quarantineFile)) {
 
       if (fs.existsSync(birthFile)) fs.unlinkSync(birthFile)
-  	  if (!fs.existsSync(quarantineFile)) fs.createFileSync(quarantineFile)
+      if (!fs.existsSync(quarantineFile)) fs.createFileSync(quarantineFile)
 
       member.addRole(quarantineRole.id) && member.addRole(cheriUserCatRole.id)
 
@@ -318,7 +372,7 @@ module.exports = birth_${member.id}`;
   ATTACH_FILES: false
 });
       setTimeout(function() {
-      	userChan.send(`Vous êtes déjà venu(e) sur **${member.guild.name}**\n
+        userChan.send(`Vous êtes déjà venu(e) sur **${member.guild.name}**\n
 Afin de préserver ces lieux de la potentielle obscurité qui sommeille en chacun de nous,\nvous avez été mis(e) à l'écart en attendant qu'un autre membre vienne s'occupe de vous.
 
 Ce salon est à votre disposition pour vous permettre de discuter avec l'ensemble des membres du serveur d'ici là ${member}`)
@@ -327,7 +381,7 @@ Ce salon est à votre disposition pour vous permettre de discuter avec l'ensembl
       client.on("guildMemberRemove", (member) => {
         var chan = member.guild.channels.find(chan => chan.id == `${createChan.id}`)
         
-      	if (chan != undefined) {
+        if (chan != undefined) {
           chan.delete()
           console.log(" chan name : " + chan.name)
           console.log(" member name : " + member.user.username)
@@ -335,56 +389,56 @@ Ce salon est à votre disposition pour vous permettre de discuter avec l'ensembl
       })
   })
 
-  	} else member.addRole(cheriUserCatRole.id) && member.addRole(cheriUserRole.id).then(addRole =>  {
+    } else member.addRole(cheriUserCatRole.id) && member.addRole(cheriUserRole.id).then(addRole =>  {
 
-  	member.guild.createChannel(`${member.user.username}`, "text").then(createChan => {
+    member.guild.createChannel(`${member.user.username}`, "text").then(createChan => {
       
       var userChan = member.guild.channels.find(chan => chan.id == `${createChan.id}`)
       newuserChanName = userChan.name
 
       fs.createFile(birthFile).then(writeFileSync => {
-      	fs.writeFileSync(birthFile, data)
+        fs.writeFileSync(birthFile, data)
       })
 
       //CHANNEL MSG + AUTODELETE COUNT
-  	  if (createChan != undefined) createChan.send(text + `\`1 minute et 30 secondes\`**` + `\n\n${member}`).then(msg => {
+      if (createChan != undefined) createChan.send(text + `\`1 minute et 30 secondes\`**` + `\n\n${member}`).then(msg => {
 
-  	  	const timerDelChan = require("./functions/timerDelChan.js")
+        const timerDelChan = require("./functions/timerDelChan.js")
         timerDelChan()
 
-  	  	// CHANNEL DELETE TIMER
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 10 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 20 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 30 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 40 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 50 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 60 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 70 * 1000)
-  	    setTimeout(function() {
-  	      if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
-  	    }, 80 * 1000)
+        // CHANNEL DELETE TIMER
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 10 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 20 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 30 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 40 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 50 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 60 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 70 * 1000)
+        setTimeout(function() {
+          if (msg != undefined) msg.edit(text + leftTime + `\n\n${member}`)
+        }, 80 * 1000)
 
-  	    // CHAN DELETE TIMEOUT
+        // CHAN DELETE TIMEOUT
         setTimeout(function() {
           if (createChan != undefined) return createChan.delete()
-  	    }, 90 * 1000)
+        }, 90 * 1000)
 
-  	  })
-  	})
+      })
+    })
   })
   cherianaLogs.send(`**${member.user.username} [USER]** ` + addText + `\nSon identifiant est: **${member.id}**`) && console.log(member.user.username + ' ' + addText)
 
@@ -428,6 +482,14 @@ client.on("guildMemberRemove", (member) => {
 
 client.on('channelCreate', (channel) => {
 
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
+
+  var cheriana = client.channels.find(chan => chan.name == "cheriana")
+  var silentRoom = client.channels.find(chan => chan.name == "silence-room")
+  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
+
   if (channel.guild == undefined) return;
 
   if ((channel.guild.name == "2019 | Portail Cheriana | FR") || (channel.guild.id == "525363756704858115")) return;
@@ -464,10 +526,18 @@ client.on('channelCreate', (channel) => {
     })
   
   }
-  
+
 });
 
 client.on('channelDelete', (channel, user) => {
+  
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
+
+  var cheriana = client.channels.find(chan => chan.name == "cheriana")
+  var silentRoom = client.channels.find(chan => chan.name == "silence-room")
+  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
 
   if (channel.guild == undefined) return;
   if ((channel.guild.name == "2019 | Portail Cheriana | FR") || (channel.guild.id == "525363756704858115")) return;
@@ -476,9 +546,9 @@ client.on('channelDelete', (channel, user) => {
 
   // SECURED CHANNELS
   if (channel.type == "text") {
-  	channel.guild.createChannel(`cheriana-resurrection`, "text")
-  	.then(createdChan => {
-  	  setTimeout(function() {
+    channel.guild.createChannel(`cheriana-resurrection`, "text")
+    .then(createdChan => {
+      setTimeout(function() {
         if (createdChan != undefined) {
           createdChan.setName("cheriana").then(setName => createdChan.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
             createdChan.send(invite.url)
@@ -488,18 +558,18 @@ client.on('channelDelete', (channel, user) => {
             console.log(invite.url)
           }))
         }
-  	   }, 3 * 1000 );
-  	   console.log(' Some user try to delete Cheriana [Master Textual Channel]')
+       }, 3 * 1000 );
+       console.log(' Some user try to delete Cheriana [Master Textual Channel]')
     })
 
   } else if (channel.type == "voice") {
-  	channel.guild.createChannel(`Cheriana Résurrection`, "voice")
+    channel.guild.createChannel(`Cheriana Résurrection`, "voice")
     .then(createdChan => {
       setTimeout(function() {
         if (createdChan != undefined) createdChan.setName("Cheriana")
        }, 3 * 1000 )
     })
-  	console.log(' Some user try to delete the Master Vocal Channel')
+    console.log(' Some user try to delete the Master Vocal Channel')
   }
 
 } else if ((channel.name == "silence-room") && (channel.type == "text")) {
@@ -547,6 +617,14 @@ client.on('channelDelete', (channel, user) => {
 });
 
 client.on('channelUpdate', (oChannel, nChannel) => {
+
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
+
+  var cheriana = client.channels.find(chan => chan.name == "cheriana")
+  var silentRoom = client.channels.find(chan => chan.name == "silence-room")
+  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
 
   if ((oChannel.guild == undefined) || (oChannel.guild == undefined)) return
 
@@ -599,6 +677,8 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   if ((newMember.guild.name == "2019 | Portail Cheriana | FR") || (newMember.guild.id == "525363756704858115")) return;
   if (newMember == undefined) return;
 
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
+
   var newUserChannel = newMember.voiceChannel
   var oldUserChannel = oldMember.voiceChannel
   var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
@@ -649,11 +729,15 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
 client.on("guildUpdate", (oldGuild, newGuild) => {
 
+  
+
   if (oldGuild.id == "525363756704858115") return;
   if (newGuild.id == "525363756704858115") return;
+  
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
 
+  var cheriana = client.channels.find(chan => chan.name === 'cheriana')
   var cherianaVC = client.channels.find(chan => chan.name === 'Cheriana')
-  var cheriana = client.channels.find(chan => chan.name === 'Cheriana')
   var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
 
   if (newGuild.name != "2019 | Cheriana | FR") return newGuild.setName("2019 | Cheriana | FR").then(setName => console.log(" Someone has tryed to change ServerName"))
@@ -669,9 +753,12 @@ client.on("guildUpdate", (oldGuild, newGuild) => {
   if (newGuild.region != "eu-central") newGuild.setRegion("eu-central") && console.log(" Someone has tryed to change Region ServerSettings")
   if (newGuild.verificationLevel != "0") return newGuild.setVerificationLevel("0").then(setVerificationLevel => console.log(" Someone has tryed to change verificationLevel ServerSettings"))
   if (newGuild.explicitContentFilter != "0") return newGuild.setExplicitContentFilter("0").then(setExplicitContentFilter => console.log(" Someone has tryed to change ExplicitContentFilter ServerSettings"))
+
 });
 
 client.on("guildMemberUpdate", (oldMember, newMember) => {
+
+  if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
 
   if ((newMember.guild.name == "2019 | Portail Cheriana | FR") || (newMember.guild.id == "525363756704858115")) return;
   if ((oldMember.guild.name == "2019 | Portail Cheriana | FR") || (oldMember.guild.id == "525363756704858115")) return;
@@ -683,6 +770,8 @@ client.on("guildMemberUpdate", (oldMember, newMember) => {
         cheriana.fetchMessage(toDelMsg).then(msg => msg.delete());
     })*/
   })
+
 });
+
 
 client.login(config.token);
