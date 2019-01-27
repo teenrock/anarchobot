@@ -1,4 +1,4 @@
-function usersCmds(message, prefix, client, command) {
+function usersCmds(message, prefix, client, command, colorList) {
 
   if (command[0] === "!roles") {
 
@@ -14,10 +14,10 @@ function usersCmds(message, prefix, client, command) {
     }
   
   if (message.content.startsWith('!say ')) {
-    var args = message.content.split(' ')
+    var args = message.content.split(" ")
     var sayMSG = ':no_entry_sign: Ne nous prend pas pour des ânes je te prie !';
 
-    if (args[1] !== '!say') {
+    if (arg[1] !== '!say') {
       let answer = args.slice(1).join(' ')
       
       if (args == null) {
@@ -68,7 +68,21 @@ function usersCmds(message, prefix, client, command) {
       message.channel.bulkDelete(messages).catch(error => console.log(error.stack))
       message.channel.send(":wastebasket: | `" + amount + "` messages supprimés")
    })
-}
+  }
+
+  if (message.content.startsWith(prefix + "color")) {
+    colorList.some(r => {
+      if ((command[1] != r.name) && (command[1] != undefined)) return message.channel.send("Vous devez saisir une couleur de role") && console.log(command[1] + " " + r.name)
+    })
+    /*
+    var member = message.guild.member(message.author);
+    var role = message.guild.roles.find(r => r.name == command[1])
+    colorList.forEach(colorRole => {
+      if (member.roles.has(colorRole.id) && (colorRole.name != command[1])) member.removeRole(colorRole.id)
+        if (!member.roles.has(role.id)) member.addRole(role.id)
+    })
+    */
+  }
 
 }
 
