@@ -364,7 +364,7 @@ par les simples mauvaises intentions du plus petit nombre.\n
 :warning: **Ce salon s'autodétruira de lui-même si vous ne le faites avant échéance du délai de: `;
   var addText = `est entré sur **2019 | Cheriana | FR**`;
 
-  xzdc.send('Un nouvel utilisateur vient d\'entrer sur **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
+  if (xzdc != undefined) xzdc.send('Un nouvel utilisateur vient d\'entrer sur **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
 
   // Case some user try to delete a chierana protected textual/vocal by his nickname egal to chan name
   if (member.user.username == "cheriana") return member.kick();
@@ -505,7 +505,7 @@ client.on("guildMemberRemove", (member) => {
   if (!member.user.bot) cherianaLogs.send(`**${member.user.username} [USER]** ` + quitText + `\nSon identifiant est: **${member.id}**`) && console.log(member.user.username + ' ' + quitText)
   if (member.user.bot) cherianaLogs.send(`**${member.user.username} [BOT]** ` + quitText) && console.log(member.user.username + ' ' + quitText)
 
-  xzdc.send('Un utilisateur vient de quitter **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
+  if (xzdc != undefined) xzdc.send('Un utilisateur vient de quitter **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
 
 });
 
@@ -732,11 +732,21 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     }
 
     if (oldUserChannel == cherianaVC) {
+
         if (oldUserChannel.members.size == 0) {
           cheriana.setTopic(`Aucun utilisateur n'est connecté au vocal ${cherianaVC.name}`)
         } else if (oldUserChannel.members.size == 1) {
           cheriana.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
         } else cheriana.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
+
+      } else if (oldUserChannel == silentRoomVC) {
+
+        if (oldUserChannel.members.size == 0) {
+          silentRoom.setTopic(`Aucun utilisateur n'est connecté au vocal ${silentRoomVC.name}`)
+        } else if (oldUserChannel.members.size == 1) {
+          silentRoom.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
+        } else silentRoom.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+
       }
 
     if (newUserChannel == undefined) {
@@ -746,16 +756,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     } else {
 
       // NEW USER ACTIONS ON JOIN
-      if (newUserChannel.name == silentRoomVC.name) {
-
-        if (newMember.serverMute == false) newMember.setMute(true)
-        if (newMember.serverDeaf == false) newMember.setDeaf(true)
-
-      } else if (newUserChannel.name == afkVC.name) {
-
-        if (newMember.serverMute == false) newMember.setMute(true)
-
-      } else if (newUserChannel.name == cherianaVC.name) {
+       if (newUserChannel.name == cherianaVC.name) {
 
         if (newMember.serverMute == true) newMember.setMute(false)
         if (newMember.serverDeaf == true) newMember.setDeaf(false)
@@ -765,6 +766,21 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
             cheriana.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
           } else cheriana.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
         }
+
+      } else if (newUserChannel.name == silentRoomVC.name) {
+
+        if (newMember.serverMute == false) newMember.setMute(true)
+        if (newMember.serverDeaf == false) newMember.setDeaf(true)
+
+        if (silentRoom != undefined) {
+          if (newUserChannel.members.size == 1) {
+            silentRoom.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
+          } else silentRoom.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+        }
+
+      } else if (newUserChannel.name == afkVC.name) {
+
+        if (newMember.serverMute == false) newMember.setMute(true)
 
       } else {
 
