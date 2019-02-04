@@ -334,11 +334,6 @@ client.on("error", err => {
 
 client.on("guildMemberAdd", (member) => {
 
-  setTimeout(function() {
-    var membersCount = cherianaGuild.members.size;
-    client.user.setActivity(`${membersCount} utilisateurs`, {type: "WATCHING"});
-  }, 3 * 1000)
-
   if ((member.guild.name == "2019 | Portail Cheriana | FR") || (member.guild.id == "525363756704858115")) return;
   
   cherianaOwnersRole = member.guild.roles.get("524282758160449556");
@@ -369,6 +364,11 @@ par les simples mauvaises intentions du plus petit nombre.\n
   // Case some user try to delete a chierana protected textual/vocal by his nickname egal to chan name
   if (member.user.username == "cheriana") return member.kick();
   
+  setTimeout(function() {
+    var membersCount = cherianaGuild.members.size;
+    client.user.setActivity(`${membersCount} utilisateurs`, {type: "WATCHING"});
+  }, 3 * 1000)
+
   // NEW USER IS NOT A BOT
   if (!member.user.bot) {
     var birthFile = "./birthdays/" + member.id + ".js"
