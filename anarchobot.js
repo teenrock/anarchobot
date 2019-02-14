@@ -200,17 +200,6 @@ client.on("error", err => {
       })
     }
 
-  if (message.channel == silentRoom) {
-
-      if (!vChan) {
-        return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
-      } else if (vChan.name != "🔇 Silence Room") return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
-
-    } else if ((message.channel == silentRoom) && (vChan.name == "🔇 Silence Room")) {
-      silentRoom.send(MSGChan)
-      console.log(MSGChanLog)
-    }
-
   if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
 
   if ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == "525363756704858115")) return;
@@ -234,7 +223,7 @@ client.on("error", err => {
   var args = command;
   var thisChannel = client.channels.find(chan => chan.id === message.channel.id);
   var vChan = message.guild.member.voiceChannel;
-  newArgs = message.content
+  newArgs = message.content;
 
   // SilentRoom Cmds Restrictions & auto delete cmds + log
   if (message.content.startsWith(prefix) && (message.channel != undefined)) {
@@ -242,6 +231,17 @@ client.on("error", err => {
     message.delete(1000)
     console.log("\n " + message.author.username + " a tapé la commande: " + message.content)
   }
+
+  if (message.channel == silentRoom) {
+
+      if (!vChan) {
+        return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
+      } else if (vChan.name != "🔇 Silence Room") return message.delete().then(del => message.author.send(`Vous devez être connecté au salon vocal **🔇 Silence Room** pour pouvoir écrire sur **${silentRoom}**`))
+
+    } else if ((message.channel == silentRoom) && (vChan.name == "🔇 Silence Room")) {
+      silentRoom.send(MSGChan)
+      console.log(MSGChanLog)
+    }
 
   // Auto Chan SetPosition on Message
   if ((message.channel.postition != 1) && ((message.channel.name != "silence-room") && (message.channel.name != "cheriana"))) message.channel.setPosition(1)
