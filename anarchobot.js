@@ -222,7 +222,7 @@ client.on("error", err => {
   var msgchan = message.channel;
   var args = command;
   var thisChannel = client.channels.find(chan => chan.id === message.channel.id);
-  var vChan = message.guild.member.voiceChannel;
+  var vChan = message.member.voiceChannel;
   newArgs = message.content;
 
   // SilentRoom Cmds Restrictions & auto delete cmds + log
