@@ -3,7 +3,7 @@ function usersCmds(message, prefix, client, command, colorList) {
   if (command[0] === "!roles") {
 
       message.guild.roles.forEach(role => {
-        if ((role == anarchobotRole) || (role == chouchouneRole) || (role == cheriOwnerRole) || (role == newAuthBotRole) || (role == cheriBotTeam) || (role == quarantineRole) || (role == cheriUserCatRole) || (role == cheriUserRole)) {
+        if ((role == anarchobot) || (role == cheriOwner) || (role == newAuthBot) || (role == cheriBotTeam) || (role == quarantine) || (role == cheriUserCat) || (role == cheriUser)) {
           message.channel.send(`**${role.name}** is [SECURED]`)
         } else {
           if ((role.id == "524277446946717707") || (role.id == "1")) return
@@ -17,7 +17,7 @@ function usersCmds(message, prefix, client, command, colorList) {
     var args = message.content.split(" ")
     var sayMSG = ':no_entry_sign: Ne nous prend pas pour des ânes je te prie !';
 
-    if (arg[1] !== '!say') {
+    if (args[1] !== '!say') {
       let answer = args.slice(1).join(' ')
       
       if (args == null) {

@@ -16,7 +16,7 @@ function ownerCmds(message, prefix, client, command) {
     } else if (command[0] === "!purgeRoles") {
 
       message.guild.roles.forEach(role => {
-        if ((role == anarchobotRole) || (role == chouchouneRole) || (role == cheriOwnerRole) || (role == newAuthBotRole) || (role == cheriBotTeam) || (role == quarantineRole) || (role == cheriUserCatRole) || (role == cheriUserRole)) {
+        if ((role == anarchobot) || (role == cheriOwner) || (role == newAuthBot) || (role == cheriBotTeam) || (role == quarantine) || (role == cheriUserCat) || (role == cheriUser)) {
           if (role.id != "524277446946717707") message.channel.send(`**${role.name}** is [SECURED]`).then(msg => console.log(`${role.name} is [SECURED]`))
           if (role.id == "524277446946717707") message.channel.send(`**${role.name}** is [SECURED]`).then(msg => console.log(`${role.name} is [SECURED]`))
         } else {
