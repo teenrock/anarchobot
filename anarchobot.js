@@ -941,15 +941,15 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 		      var vocInvite = invite.url
 
 		      cherianaGuild.members.forEach(m => {
-		        if (!fs.existsSync("./noAlert/" + m.id + ".js")) m.user.send(`Des utilisateurs sont connectés au salon vocal **` + newUserChannel.name + `**\n
-Il vous suffit de cliquer sur l'invitation afin de les y rejoindre, n'hésitez pas !\n\n${vocInvite}\n\n[Vous pouvez désactiver ces notifications à tout moment à l'aide de la commande: \`!noAlert\` et les réactiver par la suivante: \`!onAlert\`]`)
+		        if (!fs.existsSync("./noAlert/" + m.id + ".js")) m.user.send(`Des utilisateurs viennent de rejoindre le salon vocal **` + newUserChannel.name + `**\n
+Il vous suffit de cliquer sur l'invitation afin de les y rejoindre, n'hésitez pas !\n\n${vocInvite}\n\nVous pouvez désactiver ces notifications à tout moment à l'aide de la commande: \`!noAlert\`\net les réactiver par la suivante: \`!onAlert\``)
 		      })
 
 		    })
 
 		    cherianaLogs.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal: **" + newUserChannel.name + "**")
 		    cheriana.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal.")
-		    console.log(" Des utilisateurs sont connectés au vocal " + newUserChannel.name + "\n")
+		    console.log(" Des utilisateurs viennent de rejoindre le salon vocal " + newUserChannel.name + "\n")
 		    return 
 
 		  } 
