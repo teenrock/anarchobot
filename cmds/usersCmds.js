@@ -1,4 +1,22 @@
-function usersCmds(message, prefix, client, command, colorList) {
+function usersCmds(message, prefix, client, fs, command, colorList, config) {
+
+  if (command[0] === "!noAlert") {
+    var alertFile = "./noAlert/" + message.author.id + ".js"
+
+    if (!fs.existsSync(alertFile)) {
+      fs.createFileSync(alertFile)
+      message.reply("les possibles alertes générées sont à présent désactivées pour votre profil utilisateur.")
+    }
+  }
+
+  if (command[0] === "!onAlert") {
+    var alertFile = "./noAlert/" + message.author.id + ".js"
+
+    if (fs.existsSync(alertFile)) {
+      fs.unlinkSync(alertFile)
+      message.reply("les possibles alertes générées sont à présent activées pour votre profil utilisateur.")
+    }
+  }
 
   if (command[0] === "!roles") {
 
@@ -6,7 +24,7 @@ function usersCmds(message, prefix, client, command, colorList) {
         if ((role == anarchobot) || (role == cheriOwner) || (role == newAuthBot) || (role == cheriBotTeam) || (role == quarantine) || (role == cheriUserCat) || (role == cheriUser)) {
           message.channel.send(`**${role.name}** is [SECURED]`)
         } else {
-          if ((role.id == "524277446946717707") || (role.id == "1")) return
+          if ((role.id == config.roles.everyone) || (role.id == "1")) return
           message.channel.send(`**${role.name}**`)
         }
       })

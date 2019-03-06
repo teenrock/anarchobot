@@ -1,6 +1,6 @@
 {
   "auth": {
-  	"token": "BOT_TOKEN_HERE"
+  	"token": "NTI0MjczMDQzMTI0NjQ5OTg5.D11aNQ.XncT2IK5L_HaSj9314OAcq_Up_8"
   },
 
   "conf": {
@@ -26,6 +26,7 @@
   },
 
   "roles": {
+    "everyone": "551740670436704256",
   	"anarchobot": "551745162720706562",
   	"quarantine": "551756050080989204",
   	"cheriBotTeam": "551756626072436766",

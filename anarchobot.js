@@ -50,9 +50,11 @@ client.on("ready", () => {
   color100 = cherianaGuild.roles.get(config.roles.colours.marron)
 
   // USERS
-  xzdc = client.users.get("399094992338944012"); // xzdc
+  ownerUser = client.users.get(config.conf.ownerID);
   // OTHERS
   newuserChanName = null;
+  cherianAlert = undefined;
+  vocInvite = undefined;
 
   colorList = []
   colorList.push(color0, color5, color10, color20, color30, color40, color50, color60, color70, color80, color90, color100)
@@ -140,14 +142,14 @@ cherianaGuild.setIcon("./resources/server_icon.png")
 setTimeout(function() {
   if ((cheriana == undefined) || (silentRoom == undefined) || (cherianaVC == undefined) || (silentRoomVC == undefined) || (afkVC == undefined)) {
   	serverIsRegenerating = true
-  	console.log(" A Secured Channel Is : UNDEFINED [NEED A MOMENT TO REGENERATE]\n ServerIsRegenerating Status Has Been Changed to : TRUE")
+  	console.log(" A Secured Channel Is : UNDEFINED [NEED A MOMENT TO REGENERATE]\n ServerIsRegenerating Status Has Been Changed to : TRUE\n")
   	setTimeout(function() {
   	  serverIsRegenerating = false
-  	  console.log(" ServerIsRegenerating Status Has Been Forced to : FALSE")
+  	  console.log(" ServerIsRegenerating Status Has Been Forced to : FALSE\n")
   	}, 2 * 1000)
   } else {
   	serverIsRegenerating = false
-  	console.log(" Doesn't Need To Regenerate Any Channel\n ServerIsRegenerating Status Has Been Passed to : FALSE")
+  	console.log(" Doesn't Need To Regenerate Any Channel\n ServerIsRegenerating Status Has Been Passed to : FALSE\n")
   }
 }, 3 * 1000)
 
@@ -167,50 +169,14 @@ client.on("error", err => {
 
     if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
 
-    const cheriana = client.channels.find(chan => chan.name == "cheriana")
-    const silentRoom = client.channels.find(chan => chan.name == "silence-room")
-    const cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
-    const silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
-    const afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
+    cheriana = client.channels.find(chan => chan.name == "cheriana")
+    silentRoom = client.channels.find(chan => chan.name == "silence-room")
+    cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
+    silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+    afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
 
-    if (message.content.startsWith(prefix + "purge") && ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == config.guilds.portail))) {
-
-      if (message.author.bot) return
-      if (message.channel.type === "dm") return
-    
-      if(!message.guild.member(message.author).hasPermission("MANAGE_GUILD")) return message.reply("**:x: Vous n'avez pas la permission `manage-guild` dans ce serveur**").catch(console.error)
-
-      const user = message.mentions.users.first()
-      const amount = !!parseInt(message.content.split(' ')[1]) ? parseInt(message.content.split(' ')[1]) : parseInt(message.content.split(' ')[2]) 
-    
-      if (!amount) return message.reply('**:x: Veuillez spécifier une limite de message**')
-    
-      if (!amount && !user) 
-    
-      return message.reply('**:x: Veuillez spécifier une limite de message**')
-    
-      if (!user){
-        if(isNaN(message.content.split(' ')[1]) || parseInt(message.content.split(' ')[1]) < 2 || parseInt(message.content.split(' ')[1]) > 100){
-          message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
-        }
-      }
-
-      if(message.content.split(' ')[2]){
-        if(isNaN(message.content.split(' ')[2]) || parseInt(message.content.split(' ')[2]) < 2 || parseInt(message.content.split(' ')[2]) > 100){
-          message.channel.send('**:x: Veuillez spécifier une limite de message comprise entre 2 et 100**')
-        }
-      }
-
-      message.channel.fetchMessages({ limit: amount, }).then((messages) => {
-        if (user) {
-          const filterBy = user ? user.id : Client.user.id;
-          messages = messages.filter(m => m.author.id === filterBy).array().slice(0, amount)
-        }
-
-        message.channel.bulkDelete(messages).catch(error => console.log(error.stack))
-        message.channel.send(":wastebasket: | `" + amount + "` messages supprimés")
-      })
-    }
+    const portailCmds = require("./cmds/portailCmds.js")
+    portailCmds(message, prefix, client, config)
 
   if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
 
@@ -225,8 +191,6 @@ client.on("error", err => {
   var cheriUserRole = cherianaGuild.roles.find(role => role.id == config.roles.cheriUser)
 
   var botID = client.users.get(`${client.user.id}`);
-  var except_chanA = client.channels.find(chan => chan.name === 'cheriana');
-  var except_chanB = client.channels.find(chan => chan.name === 'Cheriana');
   var command = message.content.split(" ")
   var member = message.mentions.members.first();
   let replacedMention = [`${member}`];
@@ -234,7 +198,7 @@ client.on("error", err => {
   var args = command;
   var thisChannel = client.channels.find(chan => chan.id === message.channel.id);
   var vChan = message.member.voiceChannel;
-  
+
   newArgs = message.content;
 
   // SilentRoom Cmds Restrictions & auto delete cmds + log
@@ -260,14 +224,14 @@ client.on("error", err => {
   if ((message.channel.position != 0) && (message.channel.name == "cheriana")) message.channel.setPosition(0)
 
   // OWner Cmds
-  if (message.author.id == config.conf.ownerID) { // Owner User: Le Createur
+  if (message.author.id == config.conf.ownerID) {
     const ownerCmds = require("./cmds/ownerCmds.js")
-    ownerCmds(message, prefix, client, command)
+    ownerCmds(message, prefix, client, command, config)
   }
 
   // Users Cmds
   const usersCmds = require("./cmds/usersCmds.js")
-  usersCmds(message, prefix, client, command, colorList)
+  usersCmds(message, prefix, client, fs, command, colorList, config)
 
 
   if (message.attachments) {
@@ -315,6 +279,8 @@ client.on("error", err => {
         return console.log("thisChannel is undefined - err 121")
       } else {
 
+      	if (newArgs == undefined) return console.log("newArgs global variable is undefined - Err 110 [TOO SHORT DELAY BETEWEEN MESSAGES]")
+
         if (!message.author.bot) {
           var author_ = client.users.get(`${message.author.id}`);
 
@@ -325,8 +291,8 @@ client.on("error", err => {
         }
 
         toFindChan.createWebhook(`${author_.username}`, `${avatar}`).then(webhook => {
-          if ((message == undefined) || (message == null)) return webhook.delete() && console.log(" Embed or empty message detected")
-          webhook.send(`${newArgs}`), webhook.delete()
+          if ((message == undefined) || (message == null) || (newArgs == undefined)) return webhook.delete() && console.log(" Embed or empty message detected")
+          webhook.send(`${newArgs}`), newArgs = undefined, webhook.delete()
         })
 
         } else if (message.author.bot) {
@@ -334,8 +300,8 @@ client.on("error", err => {
           var avatar = 'http://teenanon.free.fr/teenrock/discordbot/pictures_res/default_avatar.png';
           
           toFindChan.createWebhook(`${author_.username}`, `${avatar}`).then(webhook => {
-          if ((message == undefined) || (message == null)) return webhook.delete() && console.log(" Embed or empty message detected")
-          webhook.send(`${newArgs}`), webhook.delete()
+          if ((message == undefined) || (message == null) || (newArgs == undefined)) return webhook.delete() && console.log(" Embed or empty message detected")
+          webhook.send(`${newArgs}`), newArgs = undefined, webhook.delete()
         })
 
         }
@@ -347,7 +313,18 @@ client.on("error", err => {
 
 client.on("guildMemberAdd", (member) => {
 
-  if ((member.guild.name == "2019 | Portail Cheriana | FR") || (member.guild.id == config.guilds.portail)) return;
+  if ((member.guild.name == "2019 | Portail Cheriana | FR") || (member.guild.id == config.guilds.portail)) {
+  	
+  	var toExitMember = cherianaGuild.members.find(m => m.id == member.id)
+
+  	// Member is not present on Cheriana
+    if (!toExitMember) {
+      return
+
+    // Member is already present on Cheriana
+    } else return toExitMember.kick();
+
+  }
   
   cheriOwnerRole = member.guild.roles.get(config.roles.cheriOwner);
   cheriUserRole = member.guild.roles.get(config.roles.cheriUser);
@@ -362,14 +339,22 @@ et ce tant que vous n'aurez pas fait vos preuves aux yeux de tous.\n
 Libre à vous comme à chacun d'apporter votre/sa contribution tout en gardant à l'esprit
 que l'intégralité du serveur peut être réduite à néant à tout instant et ce régulièrement,
 par les simples mauvaises intentions du plus petit nombre.\n
+Le serveur d'où vous veniez a disparu de votre liste, ne cherchez pas à revenir dessus !
+Vous seriez automatiquement expulsé de ces lieux et devriez par conséquent attendre que quelqu'un vienne s'occuper de votre réintégration.\n
 :warning: **Ce salon s'autodétruira de lui-même si vous ne le faites avant échéance du délai de: `;
   var addText = `est entré sur **2019 | Cheriana | FR**`;
 
-  if (xzdc != undefined) xzdc.send('Un nouvel utilisateur vient d\'entrer sur **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
+  if (ownerUser != undefined) ownerUser.send('Un nouvel utilisateur vient d\'entrer sur **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
 
   // Case some user try to delete a chierana protected textual/vocal by his nickname egal to chan name
   if (member.user.username == "cheriana") return member.kick();
   
+  var toExitMember = portailGuild.members.find(m => m.id == member.id)
+
+  if (!toExitMember) {
+  	return
+  } else toExitMember.kick();
+
   setTimeout(function() {
     var membersCount = cherianaGuild.members.size;
     client.user.setActivity(`${membersCount} utilisateurs`, {type: "WATCHING"});
@@ -389,6 +374,7 @@ module.exports = birth_${member.id}`;
     if (fs.existsSync(birthFile) || fs.existsSync(quarantineFile)) {
 
       if (fs.existsSync(birthFile)) fs.unlinkSync(birthFile)
+
       if (!fs.existsSync(quarantineFile)) fs.createFileSync(quarantineFile)
 
       member.addRole(quarantineRole.id) && member.addRole(cheriUserCatRole.id)
@@ -511,7 +497,7 @@ client.on("guildMemberRemove", (member) => {
   if (!member.user.bot) cherianaLogs.send(`**${member.user.username} [USER]** ` + quitText + `\nSon identifiant est: **${member.id}**`) && console.log(member.user.username + ' ' + quitText)
   if (member.user.bot) cherianaLogs.send(`**${member.user.username} [BOT]** ` + quitText) && console.log(member.user.username + ' ' + quitText)
 
-  if (xzdc != undefined) xzdc.send('Un utilisateur vient de quitter **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
+  if (ownerUser != undefined) ownerUser.send('Un utilisateur vient de quitter **' + member.guild.name + '**.\nIl s\'agit de: **' + member.user.username + '**' );
 
 });
 
@@ -540,24 +526,26 @@ client.on('channelCreate', (channel) => {
 
     if (channel.type == "text") cheribackup.guild.createChannel(channel.name, "text").then(createdChannel =>  {
 
+      createdChannel.overwritePermissions(createdChannel.guild.defaultRole, {
+  	    VIEW_CHANNEL: false,
+  		SEND_MESSAGES: false
+	  })
+
       setTimeout(function() {
 
         if (channel.name == newuserChanName) {
 
-          createdChannel.setParent(config.categoriesnewUsersChannels) // Server: 2019 | Portail Cheriana | FR Channel: #NEW USERS CHANNELS [category channel]
+          createdChannel.setParent(config.categories.newUsersChannels) // Server: 2019 | Portail Cheriana | FR Channel: #NEW USERS CHANNELS [category channel]
           console.log(" createdChan name = " + channel.name)
           console.log(" newUserChanName = " + newuserChanName)
 
-        } else {
-          createdChannel.setParent(config.categories.cheribackup) // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
-
-        }
+        } else createdChannel.setParent(config.categories.cheribackup) // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
 
       }, 1 * 1500)
       
       cherianaLogs.send("Le salon **#" + channel.name + "** vient d'être créé")
       cherianactivity.send("Le salon **#" + channel.name + "** vient d'être créé")
-      console.log("Le salon #" + channel.name + " vient d'être créé")
+      console.log(" Le salon #" + channel.name + " vient d'être créé")
     })
   
   }
@@ -585,17 +573,21 @@ client.on('channelDelete', (channel, user) => {
     .then(createdChan => {
       setTimeout(function() {
         if (createdChan != undefined) {
-          createdChannel.setPosition(0)
+          createdChan.setPosition(0)
           createdChan.setName("cheriana").then(setName => createdChan.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
             createdChan.send(invite.url)
-            cherianaPassInvite.send("**Entrée vers Cheriana:** " + invite.url)
-            var toDelMsg = cherianaLogs.lastMessageID;
-            cherianaLogs.fetchMessage(toDelMsg).then(msg => msg.delete() && console.log(msg + " [Has Been Deleted]"));
-            console.log(invite.url)
+            
+            var toDelMsg = cherianactivity.lastMessageID;
+            var toDelMsg2 = cherianaPassInvite.lastMessageID;
+            console.log("New Cheriana Invite URL : " + invite.url)
+            cherianactivity.fetchMessage(toDelMsg).then(msg => msg.delete() && console.log(msg + " [Has Been Deleted]"));
+            cherianaPassInvite.fetchMessage(toDelMsg2).then(msg => msg.delete().then(del => {
+              cherianaPassInvite.send("**Entrée vers Cheriana:** " + invite.url)
+            }) && console.log(msg + " [Has Been Deleted]"));
           }))
         }
        }, 3 * 1000 );
-       console.log(' Some user try to delete Cheriana [Master Textual Channel]')
+       console.log(' Some user try to delete Cheriana [Master Textual Channel]\n')
     })
 
   } else if (channel.type == "voice") {
@@ -641,7 +633,7 @@ client.on('channelDelete', (channel, user) => {
     }
 
   cherianaLogs.send("Le salon **#" + channel.name + "** vient d'être supprimé")
-  console.log("Le salon #" + channel.name + " vient d'être supprimé")
+  console.log(" Le salon #" + channel.name + " vient d'être supprimé")
 
   if (!newuserChanName) return
   if (channel.name == newuserChanName) {
@@ -720,6 +712,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
   var newUserChannel = newMember.voiceChannel
   var oldUserChannel = oldMember.voiceChannel
+  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
   var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
   var afkVC = client.channels.find(chan => chan.name == "🚽 - Les Chiottes")
 
@@ -729,51 +722,151 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
     // LOGS
     if ((oldUserChannel != undefined) && (newUserChannel == undefined)) {
       cherianaLogs.send(`**${newMember.user.username}** s'est déconnecté du salon **${oldUserChannel.name}**`)
-      console.log(' ' + newMember.user.username + ` s'est déconnecté du salon ` + oldUserChannel.name)
+      console.log(' ' + newMember.user.username + ` s'est déconnecté du salon ` + oldUserChannel.name + "\n")
     }
     if ((oldUserChannel == undefined) && (newUserChannel != undefined)) {
       cherianaLogs.send(`**${newMember.user.username}** s'est connecté au salon **${newUserChannel.name}**`)
-      console.log(' ' + newMember.user.username + ` s'est connecté au salon ` + newUserChannel.name)
+      console.log(' ' + newMember.user.username + ` s'est connecté au salon ` + newUserChannel.name + "\n")
     }
     if (((newUserChannel != undefined) && (oldUserChannel != undefined)) && (newUserChannel.name != oldUserChannel.name)) {
       cherianaLogs.send(`**${newMember.user.username}** s'est déplacé du salon **${oldUserChannel.name}** vers **${newUserChannel.name}**`)
-      console.log(' ' + newMember.user.username + " s'est déplacé du salon " + oldUserChannel.name + " vers " + newUserChannel.name)
+      console.log(' ' + newMember.user.username + " s'est déplacé du salon " + oldUserChannel.name + " vers " + newUserChannel.name + "\n")
     }
 
+    // ON USER LEAVE VOICE CHANNEL
     if (oldUserChannel == cherianaVC) {
 
         if (oldUserChannel.members.size == 0) {
-          cheriana.setTopic(`Aucun utilisateur n'est connecté au vocal ${cherianaVC.name}`)
+
+          cheriana.setTopic(`Aucun utilisateur n'est connecté au vocal ${cherianaVC.name}`).catch(err => {
+
+          	if (err) {
+              var cheriana = client.channels.find(chan => chan.name == "cheriana-resurrection") || client.channels.find(chan => chan.name == "cheriana")
+              if (!cheriana) {
+              	return
+              } else {
+              	cheriana.setTopic(`Aucun utilisateur n'est connecté au vocal ${cherianaVC.name}`)
+              }
+            }
+
+          })
+
         } else if (oldUserChannel.members.size == 1) {
-          cheriana.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
-        } else cheriana.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
+
+          cheriana.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`).catch(err => {
+
+            if (err) {
+              var cheriana = client.channels.find(chan => chan.name == "cheriana-resurrection") || client.channels.find(chan => chan.name == "cheriana")
+              if (!cheriana) {
+                return
+              } else {
+                cheriana.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
+              }
+            }
+
+           })
+
+        } else cheriana.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`).catch(err => {
+
+           if (err) {
+             var cheriana = client.channels.find(chan => chan.name == "cheriana-resurrection") || client.channels.find(chan => chan.name == "cheriana")
+             if (!cheriana) {
+               return
+             } else {
+               cheriana.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
+             }
+           }
+
+         })
 
       } else if (oldUserChannel == silentRoomVC) {
 
         if (oldUserChannel.members.size == 0) {
-          silentRoom.setTopic(`Aucun utilisateur n'est connecté au vocal ${silentRoomVC.name}`)
+
+          silentRoom.setTopic(`Aucun utilisateur n'est connecté au vocal ${silentRoomVC.name}`).catch(err => {
+
+            if (err) {
+              var SilentRoom = client.channels.find(chan => chan.name == "silence-room-resurrection") || client.channels.find(chan => chan.name == "silence-room")
+              if (!silentRoom) {
+                return
+              } else {
+                SilentRoom.setTopic(`Aucun utilisateur n'est connecté au vocal ${silentRoomVC.name}`)
+              }
+            }
+
+           })
+
         } else if (oldUserChannel.members.size == 1) {
-          silentRoom.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
-        } else silentRoom.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+
+          silentRoom.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`).catch(err => {
+
+            if (err) {
+              var SilentRoom = client.channels.find(chan => chan.name == "silence-room-resurrection") || client.channels.find(chan => chan.name == "silence-room")
+              if (!silentRoom) {
+                return
+              } else {
+                SilentRoom.setTopic(`${oldUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
+              }
+            }
+
+           })
+
+        } else silentRoom.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`).catch(err => {
+
+            if (err) {
+              var SilentRoom = client.channels.find(chan => chan.name == "silence-room-resurrection") || client.channels.find(chan => chan.name == "silence-room")
+              if (!silentRoom) {
+                return
+              } else {
+                SilentRoom.setTopic(`${oldUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+              }
+            }
+
+           })
 
       }
 
     if (newUserChannel == undefined) {
       
       return
-
+    
     } else {
 
-      // NEW USER ACTIONS ON JOIN
-       if (newUserChannel.name == cherianaVC.name) {
+      // ON USER JOIN VOICE CHANNEL
+      if (newUserChannel.name == cherianaVC.name) {
 
         if (newMember.serverMute == true) newMember.setMute(false)
         if (newMember.serverDeaf == true) newMember.setDeaf(false)
         
         if (cheriana != undefined) {
+
           if (newUserChannel.members.size == 1) {
-            cheriana.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
-          } else cheriana.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
+
+            cheriana.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`).catch(err => {
+
+          	if (err) {
+              var cheriana = client.channels.find(chan => chan.name == "cheriana-resurrection") || client.channels.find(chan => chan.name == "cheriana")
+              if (!cheriana) {
+              	return
+              } else {
+              	cheriana.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${cherianaVC.name}`)
+              }
+            }
+
+          })
+
+          } else cheriana.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`).catch(err => {
+
+          	if (err) {
+              var cheriana = client.channels.find(chan => chan.name == "cheriana-resurrection") || client.channels.find(chan => chan.name == "cheriana")
+              if (!cheriana) {
+              	return
+              } else {
+              	cheriana.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${cherianaVC.name}`)
+              }
+            }
+
+          })
         }
 
       } else if (newUserChannel.name == silentRoomVC.name) {
@@ -782,9 +875,35 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
         if (newMember.serverDeaf == false) newMember.setDeaf(true)
 
         if (silentRoom != undefined) {
+
           if (newUserChannel.members.size == 1) {
-            silentRoom.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
-          } else silentRoom.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+
+            silentRoom.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`).catch(err => {
+
+            if (err) {
+              var SilentRoom = client.channels.find(chan => chan.name == "silence-room-resurrection") || client.channels.find(chan => chan.name == "silence-room")
+              if (!silentRoom) {
+                return
+              } else {
+                SilentRoom.setTopic(`${newUserChannel.members.size} utilisateur est connecté au vocal ${silentRoomVC.name}`)
+              }
+            }
+
+           })
+
+          } else silentRoom.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`).catch(err => {
+
+            if (err) {
+              var SilentRoom = client.channels.find(chan => chan.name == "silence-room-resurrection") || client.channels.find(chan => chan.name == "silence-room")
+              if (!silentRoom) {
+                return
+              } else {
+                SilentRoom.setTopic(`${newUserChannel.members.size} utilisateurs sont connectés au vocal ${silentRoomVC.name}`)
+              }
+            }
+
+           })
+
         }
 
       } else if (newUserChannel.name == afkVC.name) {
@@ -797,6 +916,46 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
         if (newMember.serverDeaf == true) newMember.setDeaf(false)
 
       }
+
+  	  cherianaGuild.members.forEach(m => {
+
+		if ((m.voiceChannel != undefined) && (m.voiceChannel == newUserChannel) && (m.id != newMember.id)) {
+
+		  if (cherianAlert == false) {
+
+		  	return
+
+		  } else {
+
+		    cherianAlert = false
+
+		    setTimeout(function() {
+		      var alertVoc = "**L'alerte de connexion au vocal " + newUserChannel.name + "vient d'être réamorcée.**"
+		      cherianAlert = true
+		      cheriana.send(alertVoc)
+		      cherianaLogs.send(alertVoc)
+		      console.log(" L'alerte de connexion au vocal " + newUserChannel.name + "vient d'être réamorcée.\n")
+		    }, 3600 * 3000)
+
+		    newUserChannel.createInvite().then(invite => {
+		      var vocInvite = invite.url
+
+		      cherianaGuild.members.forEach(m => {
+		        if (!fs.existsSync("./noAlert/" + m.id + ".js")) m.user.send(`Des utilisateurs sont connectés au salon vocal **` + newUserChannel.name + `**\n
+Il vous suffit de cliquer sur l'invitation afin de les y rejoindre, n'hésitez pas !\n\n${vocInvite}\n\n[Vous pouvez désactiver ces notifications à tout moment à l'aide de la commande: \`!noAlert\` et les réactiver par la suivante: \`!onAlert\`]`)
+		      })
+
+		    })
+
+		    cherianaLogs.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal: **" + newUserChannel.name + "**")
+		    cheriana.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal.")
+		    console.log(" Des utilisateurs sont connectés au vocal " + newUserChannel.name + "\n")
+		    return 
+
+		  } 
+
+		}
+      })
 
     }
 
@@ -864,8 +1023,8 @@ client.on("guildMemberUpdate", (oldMember, newMember) => {
   if ((newMember.guild.name == "2019 | Portail Cheriana | FR") || (newMember.guild.id == config.guilds.portail)) return;
   if ((oldMember.guild.name == "2019 | Portail Cheriana | FR") || (oldMember.guild.id == config.guilds.portail)) return;
 
-  if (oldMember.roles.has(quarantineRole.id) && newMember.roles.has(cheriUserRole.id)) newMember.removeRole(quarantineRole.id).then(removeRole => {
-    if (cheriana != undefined) return cheriana.send(`${newMember} un membre du serveur a prit la responsabilité de vous réintégrer.\nLibre à vous de trahir, ou pas, la confiance qu'il et qu'on **VOUS** accorde.`)/*.then(msg => {
+  if (oldMember.roles.has(quarantineRole.id) && !oldMember.roles.has(cheriUserRole.id) && newMember.roles.has(cheriUserRole.id)) newMember.removeRole(quarantineRole.id).then(removeRole => {
+    if (cheriana != undefined) return cheriana.send(`${newMember} un membre du serveur a prit la responsabilité de vous réintégrer.\nLibre à vous de trahir ou pas, la confiance qui vous est donnée.`)/*.then(msg => {
       var toDelMsg = cheriana.lastMessageID;
       var lastBotMsg = client.user.lastMessageID;
         cheriana.fetchMessage(toDelMsg).then(msg => msg.delete());
