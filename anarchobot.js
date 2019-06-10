@@ -12,14 +12,14 @@ client.on("ready", () => {
   cherianaGuild = client.guilds.find(guild => guild.id == config.guilds.cheriana); // Server: 2019 | Cheriana | FR
   portailGuild = client.guilds.find(guild => guild.id == config.guilds.portail); // Server: 2019 | Portail Cheriana | FR
   // CHANNELS
-  cheriana = client.channels.find(chan => chan.name == "cheriana")
-  silentRoom = client.channels.find(chan => chan.name == "silence-room")
-  cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
-  silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
-  afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
-  cherianaPassInvite = client.channels.get(config.channels.cherianaPassInvite) // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-invitation
-  cherianaLogs = client.channels.get(config.channels.cherianaLogs) // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-logs
-  cherianactivity = client.channels.get(config.channels.cherianactivity) // Server: 2019 | Portail Cheriana | FR Channel: #cherianactivity
+  cheriana = cherianaGuild.channels.find(chan => chan.name == "cheriana")
+  silentRoom = cherianaGuild.channels.find(chan => chan.name == "silence-room")
+  cherianaVC = cherianaGuild.channels.find(chan => chan.name == "Cheriana")
+  silentRoomVC = cherianaGuild.channels.find(chan => chan.name == "🔇 Silence Room")
+  afkVC = cherianaGuild.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
+  cherianaPassInvite = portailGuild.channels.get(config.channels.cherianaPassInvite) // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-invitation
+  cherianaLogs = portailGuild.channels.get(config.channels.cherianaLogs) // Server: 2019 | Portail Cheriana | FR Channel: #cheriana-logs
+  cherianactivity = portailGuild.channels.get(config.channels.cherianactivity) // Server: 2019 | Portail Cheriana | FR Channel: #cherianactivity
   // CATEGORY CHANNELS
   cheribackup = client.channels.get(config.categories.cheribackup); // Server: 2019 | Portail Cheriana | FR Channel: #CHERIBACKUP [category channel]
   newUsersChannels = client.channels.get(config.categories.newUsersChannels); // Server: 2019 | Portail Cheriana | FR Channel: #NEW USERS CHANNELS [category channel]
@@ -660,7 +660,7 @@ client.on('channelUpdate', (oChannel, nChannel) => {
   if ((nChannel.guild.name == "2019 | Portail Cheriana | FR") || (oChannel.guild.name == "2019 | Portail Cheriana | FR")) return;
   if ((nChannel.guild.id == config.guilds.portail) || (oChannel.guild.id == config.guilds.portail)) return;
 
-  if ((oChannel.name == "cheriana") && (nChannel.name != "cheriana")) nChannel.setName("cheriana")
+  if ((oChannel.name == "cheriana") && (nChannel.name != "cheriana")) nChannel.setName("cheriana") && nChannel.setPosition(0)
   if ((oChannel.name == "Cheriana") && (nChannel.name != "Cheriana")) nChannel.setName("Cheriana")
   if ((oChannel.name == "silence-room") && (nChannel.name != "silence-room")) nChannel.setName("silence-room")
   if ((oChannel.name == "🔇 Silence Room") && (oChannel.name != "🔇 Silence Room")) nChannel.setName("🔇 Silence Room")
@@ -712,6 +712,7 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
   var newUserChannel = newMember.voiceChannel
   var oldUserChannel = oldMember.voiceChannel
+  var cheriana = cherianaGuild.channels.find(chan => chan.name == "cheriana")
   var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
   var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
   var afkVC = client.channels.find(chan => chan.name == "🚽 - Les Chiottes")
@@ -921,6 +922,8 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 
 		if ((m.voiceChannel != undefined) && (m.voiceChannel == newUserChannel) && (m.id != newMember.id)) {
 
+		  if ((newUserChannel.name == afkVC.name) || (newUserChannel.name == silentRoomVC.name)) return
+
 		  if (cherianAlert == false) {
 
 		  	return
@@ -930,11 +933,11 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
 		    cherianAlert = false
 
 		    setTimeout(function() {
-		      var alertVoc = "**L'alerte de connexion au vocal " + newUserChannel.name + "vient d'être réamorcée.**"
+		      var alertVoc = "**L'alerte de connexion au vocal " + newUserChannel.name + " vient d'être réamorcée.**"
 		      cherianAlert = true
 		      cheriana.send(alertVoc)
 		      cherianaLogs.send(alertVoc)
-		      console.log(" L'alerte de connexion au vocal " + newUserChannel.name + "vient d'être réamorcée.\n")
+		      console.log(" L'alerte de connexion au vocal " + newUserChannel.name + " vient d'être réamorcée.\n")
 		    }, 3600 * 3000)
 
 		    newUserChannel.createInvite().then(invite => {
@@ -947,7 +950,7 @@ Il vous suffit de cliquer sur l'invitation afin de les y rejoindre, n'hésitez p
 
 		      })
 
-		      cherianaLogs.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal: **" + newUserChannel.name + "**")
+		      cherianaLogs.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activés, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal: **" + newUserChannel.name + "**")
 		      cheriana.send("Tous les utilisateurs du serveur dont les paramètres de notifications d'alertes sont activées, ont étés informés de la présence de multiples utilsateurs sur votre salon vocal.")
 		      console.log(" Des utilisateurs viennent de rejoindre le salon vocal " + newUserChannel.name + "\n")
 
