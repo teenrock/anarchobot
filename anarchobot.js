@@ -713,9 +713,9 @@ client.on('voiceStateUpdate', (oldMember, newMember) => {
   var newUserChannel = newMember.voiceChannel
   var oldUserChannel = oldMember.voiceChannel
   var cheriana = cherianaGuild.channels.find(chan => chan.name == "cheriana")
-  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
-  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
-  var afkVC = client.channels.find(chan => chan.name == "🚽 - Les Chiottes")
+  var cherianaVC = cherianaGuild.channels.find(chan => chan.name == "Cheriana")
+  var silentRoomVC = cherianaGuild.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkVC = cherianaGuild.channels.find(chan => chan.name == "🚽 - Les Chiottes")
 
   // New Human User
   if (!newMember.user.bot) {
@@ -997,16 +997,19 @@ client.on("guildUpdate", (oldGuild, newGuild) => {
 
   if (oldGuild.id == config.guilds.portail) return;
   if (newGuild.id == config.guilds.portail) return;
-  
 
-  var cheriana = client.channels.find(chan => chan.name === 'cheriana')
-  var cherianaVC = client.channels.find(chan => chan.name === 'Cheriana')
-  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
+  var cheriana = cherianaGuild.channels.find(chan => chan.name === 'cheriana')
+  var cherianaVC = cherianaGuild.channels.find(chan => chan.name === 'Cheriana')
+  var silentRoomVC = cherianaGuild.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkChannel = cherianaGuild.channels.find(chan => chan.name == "🚽 - Les Chiottes")
 
   if (newGuild.name != "2019 | Cheriana | FR") return newGuild.setName("2019 | Cheriana | FR").then(setName => console.log(" Someone has tryed to change ServerName"))
   if (newGuild.defaultMessageNotifications === "ALL") return newGuild.setDefaultMessageNotifications("MENTIONS").then(setDefMsgNotif => console.log(" Someone has tryed to change Default Message Notifications ServerSettings"))
-  	if ((!cherianaVC == undefined) && (!afkChannelID == undefined)) {
+
+  	if ((cherianaVC != undefined) && (afkChannel != undefined)) {
+
   	  if ((newGuild.afkChannelID == cherianaVC.id) || (newGuild.afkChannelID == silentRoomVC.id)) newGuild.createChannel("°0_0°", 'voice').then(createChan => {
+
         if (newGuild.afkChannelID == cherianaVC.id) console.log(" Someone has tryed to set Cheriana [Master Vocal Channel] has default **AFK Channel**")
         if (newGuild.afkChannelID == silentRoomVC.id) console.log(" Someone has tryed to set 🔇 Silence Room [Protected Vocal Channel] has default **AFK Channel**")
         newGuild.setAFKChannel(createChan).then(setAFKChannel => {
