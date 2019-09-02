@@ -100,14 +100,28 @@ client.on("ready", () => {
 // console.log(newUsersChannels)
 
 // SERVER CHANNELS AUTO RESTORE IF NOT EXISTS
-if (cheriana == undefined) {
+if ((cheriana == undefined) || (cheriana.name == undefined)) {
   serverIsRegenerating = true
   cherianaGuild.createChannel("cheriana").then(createdChannel => {
     cheriana = client.channels.find(chan => chan.name == createdChannel.name)
+    if (createdChannel != undefined) {
+          createdChannel.setPosition(0)
+          createdChannel.createInvite({maxAge: 0, maxUses: 0}).then(invite => {
+            createdChannel.send(invite.url)
+            
+            var toDelMsg = cherianactivity.lastMessageID;
+            var toDelMsg2 = cherianaPassInvite.lastMessageID;
+            console.log("New Cheriana Invite URL : " + invite.url)
+            cherianactivity.fetchMessage(toDelMsg).then(msg => msg.delete() && console.log(msg + " [Has Been Deleted]"));
+            cherianaPassInvite.fetchMessage(toDelMsg2).then(msg => msg.delete().then(del => {
+              cherianaPassInvite.send("**Entrée vers Cheriana:** " + invite.url)
+            }) && console.log(msg + " [Has Been Deleted]"));
+          })
+        }
   })
 }
 
-if (silentRoom == undefined) {
+if ((silentRoom == undefined) || (silentRoom.name == undefined)) {
   serverIsRegenerating = true
   cherianaGuild.createChannel("silence-room").then(createdChannel => {
     silentRoom = client.channels.find(chan => chan.name == createdChannel.name)
@@ -556,11 +570,11 @@ client.on('channelDelete', (channel, user) => {
   
   if ((serverIsRegenerating == true) || (serverIsRegenerating == undefined)) return
 
-  var cheriana = client.channels.find(chan => chan.name == "cheriana")
-  var silentRoom = client.channels.find(chan => chan.name == "silence-room")
-  var cherianaVC = client.channels.find(chan => chan.name == "Cheriana")
-  var silentRoomVC = client.channels.find(chan => chan.name == "🔇 Silence Room")
-  var afkVC = client.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
+  var cheriana = cherianaGuild.channels.find(chan => chan.name == "cheriana")
+  var silentRoom = cherianaGuild.channels.find(chan => chan.name == "silence-room")
+  var cherianaVC = cherianaGuild.channels.find(chan => chan.name == "Cheriana")
+  var silentRoomVC = cherianaGuild.channels.find(chan => chan.name == "🔇 Silence Room")
+  var afkVC = cherianaGuild.channels.find(chan =>chan.name == "🚽 - Les Chiottes")
 
   if (channel.guild == undefined) return;
   if ((channel.guild.name == "2019 | Portail Cheriana | FR") || (channel.guild.id == config.guilds.portail)) return;
@@ -599,18 +613,6 @@ client.on('channelDelete', (channel, user) => {
     })
     console.log(' Some user try to delete the Master Vocal Channel')
   }
-
-} else if ((channel.name == "silence-room") && (channel.type == "text")) {
-
-  channel.guild.createChannel(`silence-room-resurrection`, "text")
-    .then(createdChan => {
-      setTimeout(function() {
-        if (createdChan != undefined) {
-          createdChan.setName("silence-room")
-        }
-       }, 3 * 1000 );
-       console.log(' Some user try to delete #silence-room')
-    })
 
 } else if (channel.name == "🔇 Silence Room") {
   channel.guild.createChannel("Silence Room Résurrection", "voice")
