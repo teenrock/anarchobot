@@ -192,9 +192,11 @@ client.on("error", err => {
     const portailCmds = require("./cmds/portailCmds.js")
     portailCmds(message, prefix, client, config)
 
-  if (!message.guild) return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`) 
+  if (message.guild == null) return;
 
   if ((message.guild.name == "2019 | Portail Cheriana | FR") || (message.guild.id == config.guilds.portail)) return;
+
+  if (message.guild.type == "dm") return console.log(message.author.username + " sur #" + client.user.username + `: ${message}`)
 
   var anarchobotRole = cherianaGuild.roles.find(role => role.id  == config.roles.anarchobot)
   var cheriOwnerRole = cherianaGuild.roles.find(role => role.id == config.roles.cheriOwner)
