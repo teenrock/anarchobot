@@ -92,13 +92,6 @@ client.on("ready", () => {
   })
   console.log(' ');
 
-/*
-  setInterval(function() {console.log("cheriana lastMessageID: " + cheriana.lastMessageID)}, 3 * 1000)
-  setInterval(function() {console.log("Bot.user lastMessageID: " + client.user.lastMessageID)}, 3 * 1000)
-*/
-
-// console.log(newUsersChannels)
-
 // SERVER CHANNELS AUTO RESTORE IF NOT EXISTS
 if ((cheriana == undefined) || (cheriana.name == undefined)) {
   serverIsRegenerating = true
@@ -123,29 +116,29 @@ if ((cheriana == undefined) || (cheriana.name == undefined)) {
 
 if ((silentRoom == undefined) || (silentRoom.name == undefined)) {
   serverIsRegenerating = true
-  cherianaGuild.createChannel("silence-room").then(createdChannel => {
-    silentRoom = client.channels.find(chan => chan.name == createdChannel.name)
+  cherianaGuild.createChannel("silence-room", "text").then(createdChannel => {
+    silentRoom = cherianaGuild.channels.find(chan => chan.name == createdChannel.name)
   })
 }
 
   if (!cherianaVC) {
   serverIsRegenerating = true
   cherianaGuild.createChannel(`Cheriana`, "voice").then(createdChannel => {
-    cherianaVC = client.channels.find(chan => chan.name == createdChannel.name)
+    cherianaVC = cherianaGuild.channels.find(chan => chan.name == createdChannel.name)
   })
 }
 
 if (!silentRoomVC) {
   serverIsRegenerating = true
   cherianaGuild.createChannel("🔇 Silence Room", "voice").then(createdChannel => {
-    silentRoomVC = client.channels.find(chan => chan.name == createdChannel.name)
+    silentRoomVC = cherianaGuild.channels.find(chan => chan.name == createdChannel.name)
   })
 }
 
 if (!afkVC) {
   serverIsRegenerating = true
   cherianaGuild.createChannel("🚽 - Les Chiottes", "voice").then(createdChannel => {
-    afkVC = client.channels.find(chan => chan.name == createdChannel.name)
+    afkVC = cherianaGuild.channels.find(chan => chan.name == createdChannel.name)
   })
 }
 
@@ -154,17 +147,21 @@ if (cherianaGuild.name != "2019 | Cheriana | FR") cherianaGuild.setName("2019 | 
 cherianaGuild.setIcon("./resources/server_icon.png")
 
 setTimeout(function() {
+
   if ((cheriana == undefined) || (silentRoom == undefined) || (cherianaVC == undefined) || (silentRoomVC == undefined) || (afkVC == undefined)) {
   	serverIsRegenerating = true
   	console.log(" A Secured Channel Is : UNDEFINED [NEED A MOMENT TO REGENERATE]\n ServerIsRegenerating Status Has Been Changed to : TRUE\n")
+
   	setTimeout(function() {
   	  serverIsRegenerating = false
   	  console.log(" ServerIsRegenerating Status Has Been Forced to : FALSE\n")
   	}, 2 * 1000)
+
   } else {
   	serverIsRegenerating = false
   	console.log(" Doesn't Need To Regenerate Any Channel\n ServerIsRegenerating Status Has Been Passed to : FALSE\n")
   }
+
 }, 3 * 1000)
 
 /*
@@ -502,14 +499,9 @@ client.on("guildMemberRemove", (member) => {
   if (fs.existsSync(birthFile)) fs.unlinkSync(birthFile)
   fs.createFile(quarantineFile)
 
-  var chan = member.guild.channels.find(chan => chan.name == `${member.user.username}` && chan.type == "text")
+  var memberChan = member.guild.channels.find(chan => chan.name == `${member.user.username}` && chan.type == "text")
 
-  if (chan != undefined) {
-    member.guild.deleteChannel(`${member.user.username}`, "text")
-    console.log(" chan name : " + chan.name)
-    console.log(" member name : " + member.user.username)
-  }
-
+  if (memberChan != undefined) memberChan.delete();
   if (!member.user.bot) cherianaLogs.send(`**${member.user.username} [USER]** ` + quitText + `\nSon identifiant est: **${member.id}**`) && console.log(member.user.username + ' ' + quitText)
   if (member.user.bot) cherianaLogs.send(`**${member.user.username} [BOT]** ` + quitText) && console.log(member.user.username + ' ' + quitText)
 
@@ -665,6 +657,7 @@ client.on('channelUpdate', (oChannel, nChannel) => {
   if ((nChannel.guild.id == config.guilds.portail) || (oChannel.guild.id == config.guilds.portail)) return;
 
   if ((oChannel.name == "cheriana") && (nChannel.name != "cheriana")) nChannel.setName("cheriana") && nChannel.setPosition(0)
+  if (((oChannel.name == "cheriana") && (oChannel.position == 0)) && ((nChannel.name == "cheriana") && (nChannel.postition != 0))) nChannel.setPosition(0)
   if ((oChannel.name == "Cheriana") && (nChannel.name != "Cheriana")) nChannel.setName("Cheriana")
   if ((oChannel.name == "silence-room") && (nChannel.name != "silence-room")) nChannel.setName("silence-room")
   if ((oChannel.name == "🔇 Silence Room") && (oChannel.name != "🔇 Silence Room")) nChannel.setName("🔇 Silence Room")
@@ -687,7 +680,7 @@ client.on('channelUpdate', (oChannel, nChannel) => {
       var toFindChan = cheribackup.guild.channels.find(chan => chan.name == oChannel.name);
 
       if (!toFindChan) {
-        return 
+        return // Here Need Code To Create Channel In Cheribackup Cat.
       } else {
 
         toFindChan.setName(`${nChannel.name}`)
